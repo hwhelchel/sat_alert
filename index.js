@@ -6,7 +6,7 @@ $(function(){
 })
 
 function displayDistance(){
-  $('#distance').html(distanceToISS);
+  $('#distance').html("You are " + distanceToISS + " kilometers from the ISS!");
 }
 
 function getDistancetoISS(){
