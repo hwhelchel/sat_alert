@@ -9,3 +9,13 @@ body {
   text-align: center;
   font-family: 'Raleway', sans-serif;
 }
+
+.btn {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+  background: blue;
+  padding: 8px;
+  border-radius: 8px;
+  margin-left: 16px;
+}
