@@ -15,7 +15,10 @@ function okCallback(data){
     if (isClose(distanceToISS)) {
         directionDegree = getDirectionDegree(userCoords.latitude, userCoords.longitude, lat, lon);
         cardinalDirection = getCardinalDirection(directionDegree)
-        var message = "Look up space cadet! The ISS is to the" + cardinalDirection
+        user.setIss({
+            visible: true,
+            direction: cardinalDirection
+        })
     }
 }
 
