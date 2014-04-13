@@ -2,26 +2,9 @@
 
 static Window *window;
 static TextLayer *text_layer;
+static TextLayer *time_layer;
 static AppTimer *timer;
 static uint32_t polling_frequency;
-
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Select");
-}
-
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Up");
-}
-
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Down");
-}
-
-static void click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
-}
 
 static void ask_for_iss_location(void *data) {
   DictionaryIterator *iter;
@@ -43,14 +26,18 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
   timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
-static void window_load(Window *window) {
-  Layer *window_layer = window_get_root_layer(window);
+static void set_clock(Layer *window_layer){
   GRect bounds = layer_get_bounds(window_layer);
 
   text_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 20 } });
   text_layer_set_text(text_layer, "Welcome to ISS Alert");
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
+}
+
+static void window_load(Window *window) {
+  Layer *window_layer = window_get_root_layer(window);
+  set_clock(window_layer);
 
   poll_phone();
 }
@@ -72,7 +59,6 @@ static void app_message_init(void){
 static void init(void) {
   window = window_create();
   app_message_init();
-  window_set_click_config_provider(window, click_config_provider);
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload,
