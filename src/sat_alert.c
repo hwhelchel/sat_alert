@@ -47,11 +47,11 @@ static void set_clock_layer(Layer *window_layer){
 
 
 static void set_info_layer(Layer *window_layer){
-  info_layer = text_layer_create(GRect(9, 74, 144-10 /* width */, 168-70 /* height */));
+  info_layer = text_layer_create(GRect(9, 45, 144-10 /* width */, 168-50 /* height */));
   text_layer_set_text_color(info_layer, GColorBlack);
   text_layer_set_text_alignment(info_layer, GTextAlignmentCenter);
   text_layer_set_background_color(info_layer, GColorWhite);
-  text_layer_set_font(info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  text_layer_set_font(info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
   ask_for_iss_location(NULL);
 
   layer_add_child(window_layer, text_layer_get_layer(info_layer));
