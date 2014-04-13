@@ -294,7 +294,7 @@ SpaceObject.prototype = {
 
 var ISS = function(config) {
   this.user = config.user;
-  this.minimumDistance = 400;
+  this.minimumDistance = 500 //km;
 };
 
 ISS.prototype = new SpaceObject();
