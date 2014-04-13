@@ -1,13 +1,21 @@
 $(function(){
   setInterval(function(){SatAlert.getDistancetoISS()}, 2000);
-  setInterval(function(){SatAlert.displayDistance()}, 2500);
+  setInterval(function(){SatAlert.displayDistance()}, 2100);
 })
 
 // main JS for 
 
 var SatAlert = {
+  
+  coords: {
+    lat: null,
+    long: null
+  },
+  
   displayDistance: function (){
-    $('#distance').html("You are " + SatAlert.distanceToISS + " kilometers from the ISS!");
+    if (SatAlert.distanceToISS != undefined) {
+      $('#distance').html("You are " + SatAlert.distanceToISS + " kilometers from the ISS!");
+    }
   },
 
   getDistancetoISS: function (){
@@ -15,8 +23,8 @@ var SatAlert = {
     $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
       lat = data['iss_position']['latitude'];
       lon = data['iss_position']['longitude'];
-      var userCoords = SatAlert.getUserCoordinates()
-      SatAlert.distanceToISS = SatAlert.getDistanceInKilometers(lat, lon, userCoords.lat, userCoords.lon).toFixed(2);
+      var userCoords = SatAlert.getRealUserCoordinates()
+      SatAlert.distanceToISS = SatAlert.getDistanceInKilometers(lat, lon, SatAlert.coords.lat, SatAlert.coords.lon).toFixed(2);
     });
   },
 
@@ -25,6 +33,13 @@ var SatAlert = {
       lat: 37.7083,
       lon: -122.2803
     }
+  },
+  
+  getRealUserCoordinates: function() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      SatAlert.coords.lat = position.coords.latitude;
+      SatAlert.coords.lon = position.coords.longitude
+    })
   },
 
   getDistanceInKilometers: function (lat1, lon1, lat2, lon2){
@@ -44,24 +59,3 @@ var SatAlert = {
 Number.prototype.toRad = function() {
    return this * Math.PI / 180;
 }
-
-// for use when the site is up
-
-function getRealUserCoordinates() {
-  if(navigator.geolocation){             
-    navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError);
-  }
-}
-
-function geoLocationSuccess(position) {
-  var position = {
-    latitude: position.coords.latitude,
-    longitude: position.coords.longitude 
-  }
-  return position;
-}
-
-function geoLocationError() {
-  alert('We weren\'t able to get your location.');
-}
-
