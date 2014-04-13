@@ -250,6 +250,24 @@ Ajax = (function() {
     return coordinates
   }
 
+  var getCoordinates = function(tle_line_1, tle_line_2){
+    var satrec = satellite.twoline2satrec (tle_line_1, tle_line_2);
+    date = new Date
+    var position_and_velocity = satellite.propagate(satrec, date.getFullYear(), date.getMonth(), date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds())
+    var position_eci = position_and_velocity["position"];
+    var gmst = satellite.gstime_from_date (date.getFullYear(), date.getMonth(), date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds());
+    var position_gd = satellite.eci_to_geodetic (position_eci, gmst);
+    var longitude = position_gd["longitude"];
+    var latitude  = position_gd["latitude"];
+    var longitude_str = satellite.degrees_long(longitude);
+    var latitude_str  = satellite.degrees_lat(latitude);
+    var coords = {}
+    coords.lon = longitude_str
+    coords.lat = latitude_str
+    return coords
+  }
+
+
   return {
     request: function(data, okCallback, errorCallback) {
       _request(data, okCallback, errorCallback);
