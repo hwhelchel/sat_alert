@@ -67,26 +67,45 @@ SpaceObject.prototype = {
   },
 
   getCardinalDirection: function(directionDegree) {
-    if (directionDegree < 22.5) {
-      return "North";
-    } else if (directionDegree < 67.5) {
-      return "North East";
-    } else if (directionDegree < 112.5) {
-      return "East";
-    } else if (directionDegree < 157.5) {
-      return "South East";
-    } else if (directionDegree < 202.5) {
-      return "South";
-    } else if (directionDegree < 247.5) {
-      return "South West";
-    } else if (directionDegree < 292.5) {
-      return "West";
-    } else if (directionDegree < 337.5) {
-      return "North West";
-    } else {
-      return "North";
+  //   if (directionDegree < 22.5) {
+  //     return "North";
+  //   } else if (directionDegree < 67.5) {
+  //     return "North East";
+  //   } else if (directionDegree < 112.5) {
+  //     return "East";
+  //   } else if (directionDegree < 157.5) {
+  //     return "South East";
+  //   } else if (directionDegree < 202.5) {
+  //     return "South";
+  //   } else if (directionDegree < 247.5) {
+  //     return "South West";
+  //   } else if (directionDegree < 292.5) {
+  //     return "West";
+  //   } else if (directionDegree < 337.5) {
+  //     return "North West";
+  //   } else {
+  //     return "North";
+  //   }
+  // }
+  var directions = {
+    22.5: 'north',
+    67.5: 'northeast',
+    112.5: 'east',
+    157.5: 'southeast',
+    202.5: 'south',
+    247.5: 'southwest',
+    292.5: 'west',
+    337.5: 'northwest',
+    360: 'north'
+  };
+
+  for(var degreeThreshold in directions){
+    if(directionDegree < degreeThreshold){
+      return directions[degreeThreshold];
     }
   }
+
+
 };
 
 var ISS = function(config) {
