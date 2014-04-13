@@ -27,13 +27,6 @@ var SatAlert = {
       SatAlert.distanceToISS = SatAlert.getDistanceInKilometers(lat, lon, SatAlert.coords.lat, SatAlert.coords.lon).toFixed(2);
     });
   },
-
-  getUserCoordinates: function (){
-    return {
-      lat: 37.7083,
-      lon: -122.2803
-    }
-  },
   
   getRealUserCoordinates: function() {
     navigator.geolocation.getCurrentPosition(function(position) {
