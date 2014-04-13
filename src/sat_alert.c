@@ -2,7 +2,7 @@
 
 static Window *window;
 static TextLayer *text_layer;
-static TextLayer *time_layer;
+static TextLayer *clock_layer;
 static AppTimer *timer;
 static uint32_t polling_frequency;
 
@@ -26,13 +26,30 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
   timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
+// Makes time from seconds
+static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
+
+  static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
+
+
+  strftime(time_text, sizeof(time_text), "%T", tick_time);
+  text_layer_set_text(clock_layer, time_text);
+}
+
 static void set_clock(Layer *window_layer){
   GRect bounds = layer_get_bounds(window_layer);
 
-  text_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 20 } });
-  text_layer_set_text(text_layer, "Welcome to ISS Alert");
-  text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
-  layer_add_child(window_layer, text_layer_get_layer(text_layer));
+  clock_layer = text_layer_create((GRect) { .origin = { 0, 10 }, .size = { bounds.size.w, 35 } });
+  text_layer_set_text_alignment(clock_layer, GTextAlignmentCenter);
+  text_layer_set_font(clock_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+
+  time_t now = time(NULL);
+  struct tm *current_time = localtime(&now);
+  handle_second_tick(current_time, SECOND_UNIT);
+  tick_timer_service_subscribe(SECOND_UNIT, &handle_second_tick);
+
+
+  layer_add_child(window_layer, text_layer_get_layer(clock_layer));
 }
 
 static void window_load(Window *window) {
