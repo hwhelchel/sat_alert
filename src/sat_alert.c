@@ -78,7 +78,7 @@ static void init(void) {
     .unload = window_unload,
   });
   const bool animated = true;
-  polling_frequency = 30000; // 1 minute
+  polling_frequency = 30000; // 30 seconds
   window_stack_push(window, animated);
 }
 
