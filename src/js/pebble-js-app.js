@@ -105,14 +105,17 @@ User.prototype = {
 };
 
 
+// Global namespacing
+SatAlert = {}
+
 // Sets everything in motion
 Pebble.addEventListener("ready",
     function(e) {
-        var view = new View();
-        var user = new User({
-            view: view
+        SatAlert.view = new View();
+        SatAlert.user = new User({
+            view: SatAlert.view
         });
-        var iSS = new ISS({
-            user: user
+        SatAlert.iss = new ISS({
+            user: SatAlert.user
         });
     });
