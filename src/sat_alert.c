@@ -76,6 +76,7 @@ static void handle_in_received(DictionaryIterator *sent, void *context){
   static char text[140];
   strncpy(text, test->value->cstring, 140);
   set_info_text(text);
+  vibes_double_pulse();
 }
 
 
