@@ -8,37 +8,37 @@ Pebble.addEventListener("ready",
     });
 
 var ISS = function(user) {
-    this.user = user
-    this.minimumDistance = 400
+    this.user = user;
+    this.minimumDistance = 400;
 }
 
-ISS.prototype = new SpaceObject()
+ISS.prototype = new SpaceObject();
 
 ISS.prototype.okCallback = function(data) {
     lat = data['iss_position']['latitude'];
     lon = data['iss_position']['longitude'];
-    var userCoords = this.user.getLocation()
+    var userCoords = this.user.getLocation();
     this.distanceToObject = this.getDistanceInKilometers(lat, lon, userCoords.latitude, userCoords.longitude);
     if (this.isClose(this.distanceToObject)) {
         var directionDegree = this.getDirectionDegree(userCoords.latitude, userCoords.longitude, lat, lon);
-        var cardinalDirection = this.getCardinalDirection(directionDegree)
+        var cardinalDirection = this.getCardinalDirection(directionDegree);
         this.user.setIss({
             visible: true,
             direction: cardinalDirection
-        })
+        });
     } else {
         this.user.setIss({
             visible: false
-        })
+        });
     }
 },
 
-ISS.prototype.errorCallback = function() {},
-//not used at the moment
+ISS.prototype.errorCallback = function() {
+    //not used at the moment
 }
 
 var SpaceObject = function() {
-    var minimumDistance
+    var minimumDistance;
 }
 
 SpaceObject.prototype = {
@@ -56,51 +56,51 @@ SpaceObject.prototype = {
 
     isClose: function(distanceToObject) {
         if (this.minimumDistance) {
-            return distanceToObject < this.minimumDistance
+            return distanceToObject < this.minimumDistance;
         } else {
-            return false
+            return false;
         }
     },
 
     getDirectionDegree: function(lat1, lon1, lat2, lon2) {
-        lat1 = lat1.toRad()
-        lat2 = lat2.toRad()
+        lat1 = lat1.toRad();
+        lat2 = lat2.toRad();
         var lonDiff = (lon2 - lon1).toRad();
-        var y = Math.sin(lonDiff) * Math.cos(lat2)
+        var y = Math.sin(lonDiff) * Math.cos(lat2);
         var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lonDiff);
         return (Math.atan2(y, x).toDegree() + 360) % 360;
     },
 
     getCardinalDirection: function(directionDegree) {
         if (directionDegree < 22.5) {
-            return "N"
+            return "N";
         } else if (directionDegree < 67.5) {
-            return "NE"
+            return "NE";
         } else if (directionDegree < 112.5) {
-            return "E"
+            return "E";
         } else if (directionDegree < 157.5) {
-            return "SE"
+            return "SE";
         } else if (directionDegree < 202.5) {
-            return "S"
+            return "S";
         } else if (directionDegree < 247.5) {
-            return "SW"
+            return "SW";
         } else if (directionDegree < 292.5) {
-            return "W"
+            return "W";
         } else if (directionDegree < 337.5) {
-            return "NW"
+            return "NW";
         } else {
-            return "N"
+            return "N";
         }
     }
-}
+};
 
 Number.prototype.toRad = function() {
     return this * Math.PI / 180;
-}
+};
 
 Number.prototype.toDegree = function() {
     return this / Math.PI * 180;
-}
+};
 
 
 Ajax = (function() {
