@@ -13,11 +13,8 @@ Ajax = (function() {
             if (requestObject.readyState == 4) {
                 var response = JSON.parse(requestObject.responseText);
                 if (requestObject.status == 200) {
-                    console.log(requestObject);
                     okCallback(response);
                 } else {
-
-                    console.log(response);
                     errorCallback(response);
                 }
             }
@@ -90,18 +87,30 @@ SpaceObject.prototype = {
 
 var ISS = function(config) {
     this.user = config.user;
-    this.minimumDistance = 40000000;
+    this.minimumDistance = 400;
 };
 
 ISS.prototype = new SpaceObject();
 
 ISS.prototype.okCallback = function(data) {
-    lat = data['iss_position']['latitude'];
-    lon = data['iss_position']['longitude'];
-    var userCoords = this.user.getLocation();
-    this.distanceToObject = this.getDistanceInKilometers(lat, lon, userCoords.latitude, userCoords.longitude);
+    this.lat = data['iss_position']['latitude'];
+    this.lon = data['iss_position']['longitude'];
+    this.user.getLocation(this.treatCoords.bind(this));
+},
+
+ISS.prototype.treatCoords = function(userCoords) {
+    this.distanceToObject = this.getDistanceInKilometers(
+        this.lat,
+        this.lon,
+        userCoords.latitude,
+        userCoords.longitude
+    );
     if (this.isClose(this.distanceToObject)) {
-        var directionDegree = this.getDirectionDegree(userCoords.latitude, userCoords.longitude, lat, lon);
+        var directionDegree = this.getDirectionDegree(
+            userCoords.latitude,
+            userCoords.longitude,
+            this.lat,
+            this.lon);
         var cardinalDirection = this.getCardinalDirection(directionDegree);
         this.user.setIss({
             visible: true,
@@ -112,7 +121,8 @@ ISS.prototype.okCallback = function(data) {
             visible: false
         });
     }
-},
+
+}
 
 ISS.prototype.errorCallback = function() {
     //not used at the moment
@@ -178,11 +188,16 @@ var User = function(opts) {
 };
 
 User.prototype = {
-    getLocation: function() {
+    getLocation: function(callback) {
         if (this.staleCoordinates()) {
-            navigator.geolocation.getCurrentPosition(this.foundCoordinates.bind(this));
+            var self = this;
+            navigator.geolocation.getCurrentPosition(function(position) {
+                self.foundCoordinates(position);
+                callback(self.coords);
+            })
+        } else {
+            callback(this.coords);
         }
-        return this.coords;
     },
 
     foundCoordinates: function(position) {
