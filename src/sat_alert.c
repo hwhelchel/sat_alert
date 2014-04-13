@@ -18,11 +18,11 @@ static void poll_phone(void){
   timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
-static void out_sent_handler(DictionaryIterator *sent, void *context) {
+static void handle_out_sent(DictionaryIterator *sent, void *context) {
   timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
-static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
+static void handle_out_failed(DictionaryIterator *failed, AppMessageResult reason, void *context) {
   timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
@@ -82,8 +82,8 @@ static void window_unload(Window *window) {
 }
 
 static void app_message_init(void){
-  app_message_register_outbox_sent(out_sent_handler);
-  app_message_register_outbox_failed(out_failed_handler);
+  app_message_register_outbox_sent(handle_out_sent);
+  app_message_register_outbox_failed(handle_out_failed);
 
   const uint32_t inbound_size = 64;
   const uint32_t outbound_size = 64;
