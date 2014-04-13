@@ -9,6 +9,8 @@ The app also adjusts messaging based on light visibility. If it is after dusk, t
 
 Sat Alert development began as a part of [2014 Nasa Space Apps Challenge](https://2014.spaceappschallenge.org/).
 
+[Product page](http://hwhelchel.com/sat_alert/)
+
 ##Technical Details
 
 We used the [Pebble Javascript SDK](http://developer.getpebble.com/2/guides/javascript-guide.html), [satellite-js](https://github.com/shashwatak/satellite-js), [SunCalc](https://github.com/mourner/suncalc), and [NORAD TLE satellite data](http://www.celestrak.com/NORAD/elements/).
