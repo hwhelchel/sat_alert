@@ -65,23 +65,23 @@ SpaceObject.prototype = {
 
     getCardinalDirection: function(directionDegree) {
         if (directionDegree < 22.5) {
-            return "N";
+            return "North";
         } else if (directionDegree < 67.5) {
-            return "NE";
+            return "North East";
         } else if (directionDegree < 112.5) {
-            return "E";
+            return "East";
         } else if (directionDegree < 157.5) {
-            return "SE";
+            return "South East";
         } else if (directionDegree < 202.5) {
-            return "S";
+            return "South";
         } else if (directionDegree < 247.5) {
-            return "SW";
+            return "South West";
         } else if (directionDegree < 292.5) {
-            return "W";
+            return "West";
         } else if (directionDegree < 337.5) {
-            return "NW";
+            return "North West";
         } else {
-            return "N";
+            return "North";
         }
     }
 };
@@ -140,15 +140,25 @@ Number.prototype.toDegree = function() {
 
 // View, the interface for the messages
 var View = function() {
+
     this.messages = {
         iss: {
-            title: "ISS Alert",
             visibility: {
-                "true": function(direction) {
-                    return "The ISS is now visible on the " + direction + "!, take a moment to watch the sky, take a picture, and tweet it to #ISeeTheISS!";
+                "true": {
+                    "title": function() {
+                        return "Look up!";
+                    },
+                    "text": function(direction) {
+                        return "ISS in the " + direction + "! Tweet at the @NASA_Astronauts!";
+                    }
                 },
-                "false": function() {
-                    return "The ISS is no longer visible around you!";
+                "false": {
+                    "title": function() {
+                        return "It's gone!";
+                    },
+                    "text": function() {
+                        return "The ISS is no longer visible around you!";
+                    }
                 }
             }
         }
@@ -156,13 +166,13 @@ var View = function() {
 };
 
 View.prototype = {
-    notify: function(object, visibility, direction) {
+    notify: function(object, isVisible, direction) {
         object = object.toLowerCase();
-        visibility = visibility.toString();
+        isVisible = isVisible.toString();
         var messages = this.messages[object];
 
-        var title = messages.title;
-        var text = messages.visibility[visibility](direction);
+        var title = messages.visibility[isVisible]["title"]();
+        var text = messages.visibility[isVisible]["text"](direction);
         Pebble.showSimpleNotificationOnPebble(title, text);
     }
 };
