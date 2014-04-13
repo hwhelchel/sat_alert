@@ -1,45 +1,40 @@
-Pebble.addEventListener("ready",
-    function(e) {
-        console.log("Hello world! - Sent from your javascript application.");
-        var data = {
-            url: "http://api.open-notify.org/iss-now.json",
-            type: "GET"
+// Ajax module to query the APIs
+Ajax = (function() {
+    var requestObject = new XMLHttpRequest();
+    var _formatData = function(data) {
+        data.type = data.type || "GET";
+        return data;
+    };
+
+    var _request = function(data, okCallback, errorCallback) {
+        data = _formatData(data);
+        requestObject.open(data.type, data.url, true);
+        requestObject.onreadystatechange = function(e) {
+            if (requestObject.readyState == 4) {
+                var response = JSON.parse(requestObject.responseText);
+                if (requestObject.status == 200) {
+                    console.log(requestObject);
+                    okCallback(response);
+                } else {
+
+                    console.log(response);
+                    errorCallback(response);
+                }
+            }
         };
-    });
+        requestObject.send();
+    };
 
-var ISS = function(user) {
-    this.user = user;
-    this.minimumDistance = 400;
-}
-
-ISS.prototype = new SpaceObject();
-
-ISS.prototype.okCallback = function(data) {
-    lat = data['iss_position']['latitude'];
-    lon = data['iss_position']['longitude'];
-    var userCoords = this.user.getLocation();
-    this.distanceToObject = this.getDistanceInKilometers(lat, lon, userCoords.latitude, userCoords.longitude);
-    if (this.isClose(this.distanceToObject)) {
-        var directionDegree = this.getDirectionDegree(userCoords.latitude, userCoords.longitude, lat, lon);
-        var cardinalDirection = this.getCardinalDirection(directionDegree);
-        this.user.setIss({
-            visible: true,
-            direction: cardinalDirection
-        });
-    } else {
-        this.user.setIss({
-            visible: false
-        });
-    }
-},
-
-ISS.prototype.errorCallback = function() {
-    //not used at the moment
-}
+    return {
+        request: function(data, okCallback, errorCallback) {
+            _request(data, okCallback, errorCallback);
+        }
+    };
+}());
 
 var SpaceObject = function() {
     var minimumDistance;
-}
+};
 
 SpaceObject.prototype = {
 
@@ -94,6 +89,36 @@ SpaceObject.prototype = {
     }
 };
 
+var ISS = function(user) {
+    this.user = user;
+    this.minimumDistance = 400;
+}
+
+ISS.prototype = new SpaceObject();
+
+ISS.prototype.okCallback = function(data) {
+    lat = data['iss_position']['latitude'];
+    lon = data['iss_position']['longitude'];
+    var userCoords = this.user.getLocation();
+    this.distanceToObject = this.getDistanceInKilometers(lat, lon, userCoords.latitude, userCoords.longitude);
+    if (this.isClose(this.distanceToObject)) {
+        var directionDegree = this.getDirectionDegree(userCoords.latitude, userCoords.longitude, lat, lon);
+        var cardinalDirection = this.getCardinalDirection(directionDegree);
+        this.user.setIss({
+            visible: true,
+            direction: cardinalDirection
+        });
+    } else {
+        this.user.setIss({
+            visible: false
+        });
+    }
+},
+
+ISS.prototype.errorCallback = function() {
+    //not used at the moment
+};
+
 Number.prototype.toRad = function() {
     return this * Math.PI / 180;
 };
@@ -103,39 +128,37 @@ Number.prototype.toDegree = function() {
 };
 
 
-Ajax = (function() {
-    var requestObject = new XMLHttpRequest();
-    var _formatData = function(data) {
-        data.type = data.type || "GET";
-        return data;
-    };
-
-    var _request = function(data, okCallback, errorCallback) {
-        data = _formatData(data);
-        requestObject.open(data.type, data.url, true);
-        requestObject.onreadystatechange = function(e) {
-            if (requestObject.readyState == 4) {
-                var response = JSON.parse(requestObject.responseText);
-                if (requestObject.status == 200) {
-                    console.log(requestObject);
-                    okCallback(response);
-                } else {
-
-                    console.log(response);
-                    errorCallback(response);
+// View, the interface for the messages
+var View = function() {
+    this.messages = {
+        iss: {
+            title: "ISS Alert",
+            visibility: {
+                "true": function(direction) {
+                    return "The ISS is now visible on the " + direction + "!, take a moment to watch the sky, take a picture, and tweet it to #ISeeTheISS!";
+                },
+                "false": function() {
+                    return "The ISS is no longer visible around you!";
                 }
             }
-        };
-        requestObject.send();
-    };
-
-    return {
-        request: function(data, okCallback, errorCallback) {
-            _request(data, okCallback, errorCallback);
         }
     };
-}());
+};
 
+View.prototype = {
+    notify: function(object, visibility, direction) {
+        object = object.toLowerCase();
+        visibility = visibility.toString();
+        var messages = this.messages[object];
+
+        var title = messages.title;
+        var text = messages.visibility[visibility](direction);
+        Pebble.showSimpleNotificationOnPebble(title, text);
+    }
+};
+
+
+// The user model that handles self localisation, and notifications
 var User = function(opts) {
     this.lastCoordUpdate = null;
     this.iss = {
@@ -176,3 +199,19 @@ User.prototype = {
         }
     },
 };
+
+
+// Global namespacing
+SatAlert = {};
+
+// Sets everything in motion
+Pebble.addEventListener("ready",
+    function(e) {
+        SatAlert.view = new View();
+        SatAlert.user = new User({
+            view: SatAlert.view
+        });
+        SatAlert.iss = new ISS({
+            user: SatAlert.user
+        });
+    });
