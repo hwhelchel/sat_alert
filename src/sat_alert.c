@@ -20,6 +20,13 @@ static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
   text_layer_set_text(clock_layer, time_text);
 }
 
+static void ask_for_iss_location(void *data) {
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  Tuplet value = TupletInteger(1, 1);
+  dict_write_tuplet(iter, &value);
+  app_message_outbox_send();
+}
 
 static void set_clock_layer(Layer *window_layer){
   GRect bounds = layer_get_bounds(window_layer);
@@ -45,20 +52,12 @@ static void set_info_layer(Layer *window_layer){
   text_layer_set_text_alignment(info_layer, GTextAlignmentCenter);
   text_layer_set_background_color(info_layer, GColorWhite);
   text_layer_set_font(info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-
-  static char text[] = "Matthew stinks, he did shower though, but well... Donate Shower Gel to @TheRealGlenn";
-  set_info_text(text);
+  ask_for_iss_location(NULL);
 
   layer_add_child(window_layer, text_layer_get_layer(info_layer));
 }
 
-static void ask_for_iss_location(void *data) {
-  DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-  Tuplet value = TupletInteger(1, 1);
-  dict_write_tuplet(iter, &value);
-  app_message_outbox_send();
-}
+
 
 static void poll_phone(void){
   timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
