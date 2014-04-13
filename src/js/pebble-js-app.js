@@ -354,9 +354,9 @@ var View = function() {
           },
           "text": function(direction, darkOut) {
             if (darkOut) {
-              return "You might be able to see the ISS to the " + direction + "! Tweet at the @NASA_Astronauts!";
+              return "You might be able to see the ISS to the " + direction + "! Tweet to @NASA_Astronauts!";
             } else {
-              return "ISS in the " + direction + "! Tweet at the @NASA_Astronauts!";
+              return "ISS in the " + direction + "! Tweet to @NASA_Astronauts!";
             }
           }
         },
