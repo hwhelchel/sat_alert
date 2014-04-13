@@ -52,6 +52,10 @@ static void set_clock_layer(Layer *window_layer){
   layer_add_child(window_layer, text_layer_get_layer(clock_layer));
 }
 
+static void set_info_text(char text[]){
+  text_layer_set_text(info_layer, text);
+}
+
 static void set_info_layer(Layer *window_layer){
   info_layer = text_layer_create(GRect(9, 74, 144-10 /* width */, 168-70 /* height */));
   text_layer_set_text_color(info_layer, GColorBlack);
@@ -60,7 +64,7 @@ static void set_info_layer(Layer *window_layer){
   text_layer_set_font(info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 
   static char text[] = "Matthew stinks, he did shower though, but well... Donate Shower Gel to @TheRealGlenn";
-  text_layer_set_text(info_layer, text);
+  set_info_text(text);
 
   layer_add_child(window_layer, text_layer_get_layer(info_layer));
 }
