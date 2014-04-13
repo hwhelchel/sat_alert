@@ -98,7 +98,7 @@ static void app_message_init(void){
   app_message_register_outbox_failed(handle_out_failed);
   app_message_register_inbox_received(handle_in_received);
 
-  const uint32_t inbound_size = 64;
+  const uint32_t inbound_size = 140;
   const uint32_t outbound_size = 64;
   app_message_open(inbound_size, outbound_size);
 
