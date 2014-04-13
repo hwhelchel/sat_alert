@@ -1,0 +1,29 @@
+body {
+  background: url('http://www.dailygalaxy.com/.a/6a00d8341bf7f753ef0168e601c79c970c-pi');
+  background-color: black;
+  background-size: 1800px;
+  color: white;
+}
+
+#container {
+  text-align: center;
+  font-family: 'Raleway', sans-serif;
+}
+
+.btn {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+  background-color: blue;
+  padding: 8px;
+  border-radius: 8px;
+  margin-left: 16px;
+}
+
+a.btn:hover {
+  background-color: #00008B;
+}
+
+p#distance {
+  padding-bottom: 30px;
+}
