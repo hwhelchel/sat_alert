@@ -89,10 +89,10 @@ SpaceObject.prototype = {
   }
 };
 
-var ISS = function(user) {
-  this.user = user;
+var ISS = function(config) {
+  this.user = config.user;
   this.minimumDistance = 400;
-}
+};
 
 ISS.prototype = new SpaceObject();
 
@@ -191,14 +191,14 @@ User.prototype = {
         return (now - this.lastCoordUpdate > 30000); //five minutes
       },
 
-      setiss: function(iss) {
-        if (this.iss.visible != iss.visible || this.iss.direction != iss.direction) {
-          this.iss.visible = iss.visible;
-          this.iss.direction = iss.direction;
-          this.view.notify("ISS", this.iss.visible);
-        }
-      },
-    };
+  setIss: function(iss) {
+    if (this.iss.visible != iss.visible || this.iss.direction != iss.direction) {
+      this.iss.visible = iss.visible;
+      this.iss.direction = iss.direction;
+      this.view.notify("ISS", this.iss.visible);
+    }
+  }
+};
 
 
 // Global namespacing
@@ -215,3 +215,12 @@ Pebble.addEventListener("ready",
       user: SatAlert.user
     });
   });
+
+Pebble.addEventListener("appmessage", function(e){
+  var data = {
+    url: 'http://api.open-notify.org/iss-now.json'
+  };
+  var okCallback = SatAlert.iss.okCallback.bind(SatAlert.iss);
+  var errorCallback = SatAlert.iss.errorCallback.bind(SatAlert.iss);
+  Ajax.request(data, okCallback, errorCallback);
+});
