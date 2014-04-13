@@ -3,6 +3,7 @@
 static Window *window;
 static TextLayer *text_layer;
 static AppTimer *timer;
+static uint32_t polling_frequency;
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(text_layer, "Select");
@@ -31,15 +32,15 @@ static void ask_for_iss_location(void *data) {
 }
 
 static void poll_phone(void){
-  timer = app_timer_register(6000, ask_for_iss_location, NULL);
+  timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
 static void out_sent_handler(DictionaryIterator *sent, void *context) {
-  timer = app_timer_register(6000, ask_for_iss_location, NULL);
+  timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
 static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
-  timer = app_timer_register(6000, ask_for_iss_location, NULL);
+  timer = app_timer_register(polling_frequency, ask_for_iss_location, NULL);
 }
 
 static void window_load(Window *window) {
@@ -77,6 +78,7 @@ static void init(void) {
     .unload = window_unload,
   });
   const bool animated = true;
+  polling_frequency = 30000; // 30 seconds
   window_stack_push(window, animated);
 }
 
