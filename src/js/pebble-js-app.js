@@ -23,7 +23,7 @@ ISS.prototype.okCallback = function(data) {
         var directionDegree = this.getDirectionDegree(userCoords.latitude, userCoords.longitude, lat, lon);
         var cardinalDirection = this.getCardinalDirection(directionDegree);
         this.user.setIss({
-            visible: trgiue,
+            visible: true,
             direction: cardinalDirection
         });
     } else {
