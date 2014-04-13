@@ -1,7 +1,7 @@
 #include <pebble.h>
 
 static Window *window;
-static TextLayer *text_layer;
+static TextLayer *info_layer;
 static TextLayer *clock_layer;
 static AppTimer *timer;
 static uint32_t polling_frequency;
@@ -36,7 +36,7 @@ static void handle_second_tick(struct tm* tick_time, TimeUnits units_changed) {
   text_layer_set_text(clock_layer, time_text);
 }
 
-static void set_clock(Layer *window_layer){
+static void set_clock_layer(Layer *window_layer){
   GRect bounds = layer_get_bounds(window_layer);
 
   clock_layer = text_layer_create((GRect) { .origin = { 0, 10 }, .size = { bounds.size.w, 35 } });
@@ -52,15 +52,29 @@ static void set_clock(Layer *window_layer){
   layer_add_child(window_layer, text_layer_get_layer(clock_layer));
 }
 
+static void set_info_layer(Layer *window_layer){
+  info_layer = text_layer_create(GRect(9, 74, 144-10 /* width */, 168-70 /* height */));
+  text_layer_set_text_color(info_layer, GColorBlack);
+  text_layer_set_text_alignment(info_layer, GTextAlignmentCenter);
+  text_layer_set_background_color(info_layer, GColorWhite);
+  text_layer_set_font(info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+
+  static char text[] = "Matthew stinks, he did shower though, but well... Donate Shower Gel to @TheRealGlenn";
+  text_layer_set_text(info_layer, text);
+
+  layer_add_child(window_layer, text_layer_get_layer(info_layer));
+}
+
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
-  set_clock(window_layer);
-
+  set_clock_layer(window_layer);
+  set_info_layer(window_layer);
   poll_phone();
 }
 
 static void window_unload(Window *window) {
-  text_layer_destroy(text_layer);
+  text_layer_destroy(info_layer);
+  text_layer_destroy(clock_layer);
 }
 
 static void app_message_init(void){
