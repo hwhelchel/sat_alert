@@ -1,7 +1,7 @@
 body {
   background: url('http://www.dailygalaxy.com/.a/6a00d8341bf7f753ef0168e601c79c970c-pi');
   background-color: black;
-  background-size: 100%;
+  background-size: 1200px;
   color: white;
 }
 
@@ -14,8 +14,12 @@ body {
   display: inline-block;
   text-decoration: none;
   color: white;
-  background: blue;
+  background-color: blue;
   padding: 8px;
   border-radius: 8px;
   margin-left: 16px;
+}
+
+a.btn:hover {
+  background-color: #00008B;
 }
