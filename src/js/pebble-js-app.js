@@ -398,17 +398,17 @@ User.prototype = {
     if (this.iss.visible != iss.visible || this.iss.direction != iss.direction) {
       this.iss.visible = iss.visible;
       this.iss.direction = iss.direction;
-      this.iss.darkOut = this.checkDarkness();
+      this.iss.darkOut = this.isDarkOut();
       this.view.notify("ISS", this.iss.visible, this.iss.direction, this.iss.darkOut);
     }
   },
 
-  checkDarkness: function(){
+  isDarkOut: function(){
     var currentTime = this.lastCoordUpdate;
     var times = SunCalc.getTimes(currentTime, this.coords.latitude, this.coords.longitude);
     var nauticalDusk = times.nauticalDusk.getTime();
-    var nightEnd = times.nightEnd.getTime();
-    return (currentTime > nauticalDusk || currentTime < nightEnd);
+    var nauticalDawn = times.nauticalDawn.getTime();
+    return (currentTime > nauticalDusk || currentTime < nauticalDawn);
   }
 };
 
