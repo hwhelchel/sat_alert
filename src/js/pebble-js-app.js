@@ -64,24 +64,23 @@ SpaceObject.prototype = {
     },
 
     getCardinalDirection: function(directionDegree) {
-        if (directionDegree < 22.5) {
-            return "North";
-        } else if (directionDegree < 67.5) {
-            return "North East";
-        } else if (directionDegree < 112.5) {
-            return "East";
-        } else if (directionDegree < 157.5) {
-            return "South East";
-        } else if (directionDegree < 202.5) {
-            return "South";
-        } else if (directionDegree < 247.5) {
-            return "South West";
-        } else if (directionDegree < 292.5) {
-            return "West";
-        } else if (directionDegree < 337.5) {
-            return "North West";
-        } else {
-            return "North";
+        var directions = [
+            [22.5, 'north'],
+            [67.5, 'northeast'],
+            [112.5, 'east'],
+            [157.5, 'southeast'],
+            [202.5, 'south'],
+            [247.5, 'southwest'],
+            [292.5, 'west'],
+            [337.5, 'northwest'],
+            [360, 'north']
+        ];
+        for (var i = 0; i < directions.length; i++) {
+            var degreeThreshold = directions[i][0];
+            var directionString = directions[i][1];
+            if (directionDegree < degreeThreshold) {
+                return directionString;
+            }
         }
     }
 };
@@ -140,7 +139,6 @@ Number.prototype.toDegree = function() {
 
 // View, the interface for the messages
 var View = function() {
-
     this.messages = {
         iss: {
             visibility: {
@@ -220,7 +218,7 @@ User.prototype = {
         if (this.iss.visible != iss.visible || this.iss.direction != iss.direction) {
             this.iss.visible = iss.visible;
             this.iss.direction = iss.direction;
-            this.view.notify("ISS", this.iss.visible);
+            this.view.notify("ISS", this.iss.visible, this.iss.direction);
         }
     }
 };
