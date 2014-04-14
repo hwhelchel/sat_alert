@@ -4,13 +4,26 @@ var Satellite = function(config) {
   this.lat = config.lat;
   this.lon = config.lon;
   this.distance = config.distance;
+  this.changed = false;
 };
 
 Satellite.prototype = {
 
   update: function(data){
+    var visible, direction;
+    if(this.visible){
+      visible = this.visible;
+    }
+    if(this.direction){
+      direction = this.direction;
+    }
     this.visible = this.checkVisibility(data.user);
     this.direction = this.updateDirection(data.user);
+    if (this.visible != visible || this.direction != direction){
+      this.changed = true;
+    } else {
+      this.changed = false;
+    }
   },
 
   checkVisibility: function(user) {

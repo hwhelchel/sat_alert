@@ -10,12 +10,16 @@ Controller.prototype = {
 
   success: function(data){
     this.user.getLocation();
-    this.satelliteData = {};
     this.satelliteData = data;
-    this.satellite = {};
-    this.satellite = this.makeSatellite(this);
+    this.satellite = this.makeSatellite();
     this.satellite.update(this);
-    this.view.notify(this);
+    this.checkIfWeShouldUpdateView();
+  },
+
+  checkIfWeShouldUpdateView: function(){
+    if (this.satellite.changed) {
+      this.view.notify(this);
+    }
   },
 
   error: function(){
@@ -29,7 +33,7 @@ Controller.prototype = {
     this.ajax.request(data, this.success.bind(this), this.error.bind(this));
   },
 
-  makeSatellite: function(data){
-    return this.factory.makeSatellite(data);
+  makeSatellite: function(){
+    return this.factory.makeSatellite(this);
   }
 };
