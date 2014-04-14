@@ -120,7 +120,7 @@ var SpaceObject = function(config, user) {
   this.lat = config.lat;
   this.lon = config.lon;
   this.user = user;
-  this.minimumDistance = 8000; // in km
+  this.minimumDistance = 1000; // in km
   this.distance = config.distance;
 };
 
