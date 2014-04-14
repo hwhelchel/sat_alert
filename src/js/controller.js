@@ -11,6 +11,9 @@ Controller.prototype = {
   success: function(data){
     this.user.getLocation();
     this.satelliteData = data;
+    if (this.satellite){
+      this.oldSat = this.satellite;
+    }
     this.satellite = this.makeSatellite();
     this.satellite.update(this);
     this.checkIfWeShouldUpdateView();

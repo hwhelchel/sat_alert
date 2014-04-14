@@ -19,7 +19,7 @@ Satellite.prototype = {
     }
     this.visible = this.checkVisibility(data.user);
     this.direction = this.updateDirection(data.user);
-    if (this.visible != visible || this.direction != direction){
+    if (data.oldSat.name != this.name || this.visible != visible || this.direction != direction){
       this.changed = true;
     } else {
       this.changed = false;
