@@ -22,7 +22,7 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
-      files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+      files: ['Gruntfile.js', 'src/js/satellite.js','src/js/suncalc.js','src/js/pebble-app-development.js'],
       options: {
         // options here to override JSHint defaults
         globals: {
