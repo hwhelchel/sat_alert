@@ -1,15 +1,20 @@
-var SpaceObject = function(config) {
+// Satellite
+var Satellite = function(config) {
   this.name = config.name.trim();
   this.lat = config.lat;
   this.lon = config.lon;
-  // this.minimumDistance = 1000; // in km should be on the user
   this.distance = config.distance;
 };
 
-SpaceObject.prototype = {
+Satellite.prototype = {
+
+  update: function(data){
+    this.visible = this.checkVisibility(data.user);
+    this.direction = this.updateDirection(data.user);
+  },
 
   checkVisibility: function(user) {
-    if(this.isClose(user.distance) && isDarkOut(user)){
+    if(this.isClose(user.distance) && this.isDarkOut(user)){
       return true;
     } else {
       return false;
@@ -21,8 +26,8 @@ SpaceObject.prototype = {
       userLatitude: user.coords.latitude,
       userLongitude: user.coords.longitude
     };
-    var degreeDirection = getDirectionDegree(degreeOptions);
-    var cardinalDirection = getCardinalDirection(degreeDirection);
+    var degreeDirection = this.getDirectionDegree(degreeOptions);
+    var cardinalDirection = this.getCardinalDirection(degreeDirection);
     return cardinalDirection;
   },
 
