@@ -5,6 +5,8 @@ var Satellite = function(config) {
   this.lon = config.lon;
   this.distance = config.distance;
   this.changed = false;
+  this.visible = false;
+  this.direction = 'sky';
 };
 
 Satellite.prototype = {

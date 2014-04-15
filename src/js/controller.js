@@ -4,12 +4,16 @@ var Controller = function(config){
   this.view = config.view;
   this.ajax = config.ajax;
   this.factory = config.factory;
+  this.oldSat = { name: null };
 };
 
 Controller.prototype = {
 
   success: function(data){
-    this.user.getLocation();
+    this.user.getLocation(this.continueSuccess.bind(this), data);
+  },
+
+  continueSuccess: function(data){
     this.satelliteData = data;
     if (this.satellite){
       this.oldSat = this.satellite;
@@ -26,7 +30,7 @@ Controller.prototype = {
   },
 
   error: function(){
-    // does nothing right now
+    console.log('error');
   },
 
   getSatelliteData: function(){

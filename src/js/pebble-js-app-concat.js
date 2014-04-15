@@ -3253,13 +3253,28 @@ var Satellite = function(config) {
   this.lat = config.lat;
   this.lon = config.lon;
   this.distance = config.distance;
+  this.changed = false;
+  this.visible = false;
+  this.direction = 'sky';
 };
 
 Satellite.prototype = {
 
   update: function(data){
+    var visible, direction;
+    if(this.visible){
+      visible = this.visible;
+    }
+    if(this.direction){
+      direction = this.direction;
+    }
     this.visible = this.checkVisibility(data.user);
     this.direction = this.updateDirection(data.user);
+    if (data.oldSat.name != this.name || this.visible != visible || this.direction != direction){
+      this.changed = true;
+    } else {
+      this.changed = false;
+    }
   },
 
   checkVisibility: function(user) {
@@ -3326,17 +3341,20 @@ var User = function() {
   this.lastCoordUpdate = null;
   this.coords = {};
   this.darkOut = false;
-  this.distance = 1000;
+  this.distance = 400; //distance user can see in km
 };
 
 User.prototype = {
-  getLocation: function(satCoords) {
+  getLocation: function(callback, data) {
     if (this.staleCoordinates()) {
       var self = this;
       navigator.geolocation.getCurrentPosition(
       function(position) {
         self.findCoordinates(position);
+        callback(data);
       });
+    } else {
+      callback(data);
     }
   },
 
@@ -3387,22 +3405,33 @@ var Controller = function(config){
   this.view = config.view;
   this.ajax = config.ajax;
   this.factory = config.factory;
+  this.oldSat = { name: null };
 };
 
 Controller.prototype = {
 
   success: function(data){
-    this.user.getLocation();
-    this.satelliteData = {};
+    this.user.getLocation(this.continueSuccess.bind(this), data);
+  },
+
+  continueSuccess: function(data){
     this.satelliteData = data;
-    this.satellite = {};
-    this.satellite = this.makeSatellite(this);
+    if (this.satellite){
+      this.oldSat = this.satellite;
+    }
+    this.satellite = this.makeSatellite();
     this.satellite.update(this);
-    this.view.notify(this);
+    this.checkIfWeShouldUpdateView();
+  },
+
+  checkIfWeShouldUpdateView: function(){
+    if (this.satellite.changed) {
+      this.view.notify(this);
+    }
   },
 
   error: function(){
-    // does nothing right now
+    console.log('error');
   },
 
   getSatelliteData: function(){
@@ -3412,45 +3441,24 @@ Controller.prototype = {
     this.ajax.request(data, this.success.bind(this), this.error.bind(this));
   },
 
-  makeSatellite: function(data){
-    return this.factory.makeSatellite(data);
+  makeSatellite: function(){
+    return this.factory.makeSatellite(this);
   }
 };;// View, the interface for the messages
-var View = function() {
-  this.messages = {
-      visibility: {
-        "true": {
-          "title": function(satellite) {
-            return "Look up!";
-          },
-          "text": function(satellite) {
-            if (satellite.visible) {
-                return "You might be able to see the " + satellite.name + " to the " + satellite.direction + "! Tweet to @NASA_Astronauts!";
-            } else {
-                return satellite.name + " in the " + satellite.direction + "! Tweet to @NASA_Astronauts!";
-            }
-          }
-        },
-        "false": {
-          "title": function(satellite) {
-            return satellite.name + " is gone!";
-          },
-          "text": function(satellite) {
-              return "Sorry, the " + satellite.name + " is no longer visible!";
-          }
-        }
-      }
-  };
-};
+var View = function() {};
 
 View.prototype = {
   notify: function(data) {
-    var isVisible = data.satellite.visible.toString();
-    var messages = this.messages;
-    var title = messages.visibility[isVisible].title(data.satellite);
-    var text = messages.visibility[isVisible].text(data.satellite);
-
+    var text = getMessage(data.satellite);
     Pebble.sendAppMessage({ 0: text });
+  },
+
+  getMessage: function(satellite){
+    if (satellite.visible) {
+        return "You might be able to see the " + satellite.name + " to the " + satellite.direction + "! Tweet to @NASA_Astronauts!";
+    } else {
+        return satellite.name + " in the " + satellite.direction + "! Tweet to @NASA_Astronauts!";
+    }
   }
 };;// Global namespacing
 SatAlert = {};

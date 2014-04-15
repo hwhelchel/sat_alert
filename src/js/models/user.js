@@ -3,17 +3,20 @@ var User = function() {
   this.lastCoordUpdate = null;
   this.coords = {};
   this.darkOut = false;
-  this.distance = 1000; //distance user can see in km
+  this.distance = 400; //distance user can see in km
 };
 
 User.prototype = {
-  getLocation: function(satCoords) {
+  getLocation: function(callback, data) {
     if (this.staleCoordinates()) {
       var self = this;
       navigator.geolocation.getCurrentPosition(
       function(position) {
         self.findCoordinates(position);
+        callback(data);
       });
+    } else {
+      callback(data);
     }
   },
 
