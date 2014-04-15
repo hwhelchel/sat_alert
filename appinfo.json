@@ -1,7 +1,7 @@
 {
   "uuid": "e3e3a851-ebdd-44da-ac48-2e7c9cc95887",
-  "shortName": "sat_alert",
-  "longName": "sat_alert",
+  "shortName": "Sat Alert",
+  "longName": "Sat Alert",
   "capabilities": ["location"],
   "companyName": "MakeAwesomeHappen",
   "versionCode": 1,

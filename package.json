@@ -1,0 +1,26 @@
+{
+  "name": "sat_alert",
+  "version": "2.0.0",
+  "description": "Shows satellites above you on your Pebble watch",
+  "main": "Gruntfile.js",
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-uglify": "^0.4.0",
+    "grunt-concat": "^0.1.6",
+    "grunt-contrib-concat": "^0.4.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hwhelchel/sat_alert.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hwhelchel/sat_alert/issues"
+  },
+  "homepage": "https://github.com/hwhelchel/sat_alert"
+}

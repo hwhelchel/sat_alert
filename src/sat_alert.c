@@ -124,7 +124,7 @@ static void init(void) {
   window_set_background_color(window, GColorBlack);
   window_set_fullscreen(window, true);
   const bool animated = true;
-  polling_frequency = 30000; // 30 seconds
+  polling_frequency = 60000; // 60 seconds
   window_stack_push(window, animated);
 }
 
