@@ -3,7 +3,7 @@ var View = function() {};
 
 View.prototype = {
   notify: function(data) {
-    var text = getMessage(data.satellite);
+    var text = this.getMessage(data.satellite);
     Pebble.sendAppMessage({ 0: text });
   },
 
