@@ -38,7 +38,7 @@ static void set_clock_layer(Layer *window_layer){
 
   clock_layer = text_layer_create((GRect) { .origin = { 0, 10 }, .size = { bounds.size.w, 35 } });
   text_layer_set_text_alignment(clock_layer, GTextAlignmentCenter);
-    text_layer_set_text_color(clock_layer, GColorWhite);
+  text_layer_set_text_color(clock_layer, GColorWhite);
   text_layer_set_background_color(clock_layer, GColorBlack);
   text_layer_set_font(clock_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 
