@@ -8,6 +8,11 @@ static uint32_t polling_frequency;
 
 static void set_info_text(char text[]){
   text_layer_set_text(info_layer, text);
+  GSize max_size = text_layer_get_content_size(info_layer);
+  max_size.w = max_size.w + 5;
+  max_size.h = max_size.h + 5;
+  text_layer_set_size(info_layer, max_size);
+  text_layer_set_background_color(info_layer, GColorWhite);
 }
 
 // Makes time from seconds
@@ -33,6 +38,8 @@ static void set_clock_layer(Layer *window_layer){
 
   clock_layer = text_layer_create((GRect) { .origin = { 0, 10 }, .size = { bounds.size.w, 35 } });
   text_layer_set_text_alignment(clock_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(clock_layer, GColorWhite);
+  text_layer_set_background_color(clock_layer, GColorBlack);
   text_layer_set_font(clock_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 
   time_t now = time(NULL);
@@ -47,10 +54,12 @@ static void set_clock_layer(Layer *window_layer){
 
 
 static void set_info_layer(Layer *window_layer){
-  info_layer = text_layer_create(GRect(9, 45, 144-10 /* width */, 168-50 /* height */));
+  GRect bounds = layer_get_frame(window_layer);
+  bounds = GRect(4, 50, bounds.size.w-8 , 2000);
+  info_layer = text_layer_create(bounds);
   text_layer_set_text_color(info_layer, GColorBlack);
+  text_layer_set_background_color(info_layer, GColorBlack);
   text_layer_set_text_alignment(info_layer, GTextAlignmentCenter);
-  text_layer_set_background_color(info_layer, GColorWhite);
   text_layer_set_font(info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
   ask_for_iss_location(NULL);
 
@@ -112,6 +121,8 @@ static void init(void) {
     .load = window_load,
     .unload = window_unload,
   });
+  window_set_background_color(window, GColorBlack);
+  window_set_fullscreen(window, true);
   const bool animated = true;
   polling_frequency = 60000; // 60 seconds
   window_stack_push(window, animated);
