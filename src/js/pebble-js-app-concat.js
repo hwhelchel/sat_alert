@@ -1,4 +1,11 @@
-/*
+Number.prototype.toRad = function() {
+  return this * Math.PI / 180;
+};
+
+Number.prototype.toDegree = function() {
+  return this / Math.PI * 180;
+};
+;/*
  * satellite-js v1.1
  * (c) 2013 Shashwat Kandadai and UCSC
  * https://github.com/shashwatak/satellite-js
@@ -3154,54 +3161,75 @@ function hourAngle(h, phi, d) {
   else window.SunCalc = SunCalc;
 
 }());
-//SUNCALC END;// Ajax module to query the APIs
-Ajax = (function(satellite) {
-  var requestObject = new XMLHttpRequest();
-  var _formatData = function(data) {
-    data.type = data.type || "GET";
-    return data;
-};
+//SUNCALC END;//Satellite Factory
+var SatelliteFactory = function(){};
 
-var _request = function(data, okCallback, errorCallback) {
-    data = _formatData(data);
-    requestObject.open(data.type, data.url, true);
-    requestObject.onreadystatechange = function(e) {
-      if (requestObject.readyState == 4) {
-        var tleArray = requestObject.responseText.split('\n');
-        var spaceStations = _createSpaceStations(tleArray);
-        var satellites = _createCoordinates(spaceStations);
-        if (requestObject.status == 200) {
-          okCallback(satellites);
-      }
-  }
-};
-requestObject.send();
-};
+SatelliteFactory.prototype = {
 
-var _createSpaceStations = function(tleArray){
-    var spaceStations = {};
-    var x = 0;
-    for(var i=0; i < tleArray.length; i+=3){
-      spaceStations[x] = {};
-      spaceStations[x].name = tleArray[i];
-      spaceStations[x].tle_line_1 = tleArray[i+1];
-      spaceStations[x].tle_line_2 = tleArray[i+2];
-      x += 1;
-  }
-  return spaceStations;
-};
+  makeSatellite: function(data){
+    var satellites = this.generateSatelliteAttributes(data.satelliteData);
+    var closeSatellite = this.findClosestSatellite(satellites, data.user);
+    return new Satellite(closeSatellite);
+  },
 
-var _createCoordinates = function(spaceStations) {
-    var coordinates = {};
-    for (var station in spaceStations) {
-      if(spaceStations[station].tle_line_1){
-        coordinates[spaceStations[station].name] = getCoordinates(spaceStations[station].tle_line_1, spaceStations[station].tle_line_2);
+  findClosestSatellite: function(coordinates, user){
+    var nearestSatellite = {
+      distance: 100000
+    };
+
+    for(var sat in coordinates) {
+        distance = this.getDistanceInKilometers(coordinates[sat].lat, coordinates[sat].lon, user.coords.latitude, user.coords.longitude);
+        if (distance < nearestSatellite.distance) {
+          nearestSatellite.name = sat;
+          nearestSatellite.distance = distance;
+          nearestSatellite.lat = coordinates[sat].lat;
+          nearestSatellite.lon = coordinates[sat].lon;
+        }
     }
-}
-return coordinates;
-};
+    return nearestSatellite;
+  },
 
-var getCoordinates = function(tle_line_1, tle_line_2){
+  generateSatelliteAttributes: function(data){
+    var satellitesWithCoordinates = this.calculateLatitudeAndLongitude(this.readSatelliteInput(data));
+    return satellitesWithCoordinates;
+  },
+
+  readSatelliteInput: function(data){
+    var satellites = {};
+    var x = 0;
+    for(var i=0; i < data.length; i+=3){
+      satellites[x] = {};
+      satellites[x].name = data[i];
+      satellites[x].tle_line_1 = data[i+1];
+      satellites[x].tle_line_2 = data[i+2];
+      x += 1;
+    }
+    return satellites;
+  },
+
+  calculateLatitudeAndLongitude: function(satellitesAttributes) {
+    var coords = {};
+    for (var satellite in satellitesAttributes) {
+      if(satellitesAttributes[satellite].tle_line_1){
+        coords[satellitesAttributes[satellite].name] = this.getCoordinates(satellitesAttributes[satellite].tle_line_1, satellitesAttributes[satellite].tle_line_2);
+      }
+    }
+    return coords;
+  },
+
+  getDistanceInKilometers: function(lat1, lon1, lat2, lon2) {
+      var dLat = (lat2 - lat1).toRad();
+      var dLon = (lon2 - lon1).toRad();
+
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      var d = 6371 * c;
+      return d;
+  },
+
+  getCoordinates: function(tle_line_1, tle_line_2){
     var satrec = satellite.twoline2satrec(tle_line_1, tle_line_2);
     var date = new Date();
     var position_and_velocity = satellite.propagate(satrec, date.getFullYear(), date.getMonth(), date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds());
@@ -3216,111 +3244,79 @@ var getCoordinates = function(tle_line_1, tle_line_2){
     coords.lon = longitude_str;
     coords.lat = latitude_str;
     return coords;
-};
-
-
-return {
-    request: function(data, okCallback, errorCallback) {
-      _request(data, okCallback, errorCallback);
   }
-};
-}(satellite));
 
-var SatelliteFactory = function(config){
-  this.user = config.user;
-};
 
-SatelliteFactory.prototype = {
-
-  okCallback: function(coordinates){
-    this.user.getLocation(this.findClosest.bind(this),coordinates);
-},
-
-errorCallback: function(coordinates){
-    // does nothing
-},
-
-findClosest: function(coordinates, user){
-    var nearestSatellite = {
-      distance: 100000
-  };
-  for(var sat in coordinates) {
-      distance = this.getDistanceInKilometers(coordinates[sat].lat, coordinates[sat].lon, user.coords.latitude, user.coords.longitude);
-      if (distance < nearestSatellite.distance) {
-        nearestSatellite.name = sat;
-        nearestSatellite.distance = distance;
-        nearestSatellite.lat = coordinates[sat].lat;
-        nearestSatellite.lon = coordinates[sat].lon;
-    }
-}
-var satellite = new SpaceObject(nearestSatellite, user);
-satellite.setVisibility(user.coords);
-},
-
-getDistanceInKilometers: function(lat1, lon1, lat2, lon2) {
-    var dLat = (lat2 - lat1).toRad();
-    var dLon = (lon2 - lon1).toRad();
-
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = 6371 * c;
-    return d;
-}
-};
-
-var SpaceObject = function(config, user) {
-  this.name = config.name;
+};;// Satellite
+var Satellite = function(config) {
+  this.name = config.name.trim();
   this.lat = config.lat;
   this.lon = config.lon;
-  this.user = user;
-  this.minimumDistance = 16378;
   this.distance = config.distance;
+  this.changed = false;
+  this.visible = false;
+  this.direction = 'sky';
 };
 
-SpaceObject.prototype = {
+Satellite.prototype = {
 
-  setVisibility: function(userCoords) {
-    if (this.isClose(this.distance)) {
-      var directionDegree = this.getDirectionDegree(
-        userCoords.latitude,
-        userCoords.longitude,
-        this.lat,
-        this.lon);
-      var cardinalDirection = this.getCardinalDirection(directionDegree);
-      this.user.setSpaceObjectProperties({
-        name: this.name,
-        visible: true,
-        direction: cardinalDirection
-    });
-  } else {
-      this.user.setSpaceObjectProperties({
-        name: this.name,
-        visible: false
-    });
-  }
+  update: function(data){
+    var visible, direction;
+    if(this.visible){
+      visible = this.visible;
+    }
+    if(this.direction){
+      direction = this.direction;
+    }
+    this.visible = this.checkVisibility(data.user);
+    this.direction = this.updateDirection(data.user);
+    if (data.oldSat.name != this.name || this.visible != visible || this.direction != direction){
+      this.changed = true;
+    } else {
+      this.changed = false;
+    }
+  },
 
-},
-
-isClose: function(distance) {
-    if (this.minimumDistance) {
-      return this.distance < this.minimumDistance;
-  } else {
+  checkVisibility: function(user) {
+    if(this.isClose(user.distance) && this.isDarkOut(user)){
+      return true;
+    } else {
       return false;
-  }
-},
+    }
+  },
 
-getDirectionDegree: function(lat1, lon1, lat2, lon2) {
-    lat1 = lat1.toRad();
-    lat2 = lat2.toRad();
-    var lonDiff = (lon2 - lon1).toRad();
-    var y = Math.sin(lonDiff) * Math.cos(lat2);
-    var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lonDiff);
+  updateDirection:function(user){
+    var degreeOptions = {
+      userLatitude: user.coords.latitude,
+      userLongitude: user.coords.longitude
+    };
+    var degreeDirection = this.getDirectionDegree(degreeOptions);
+    var cardinalDirection = this.getCardinalDirection(degreeDirection);
+    return cardinalDirection;
+  },
+
+  isClose: function(userDistance) {
+      return this.distance < userDistance;
+  },
+
+  isDarkOut: function(user) {
+    var currentTime = user.lastCoordUpdate;
+    var times = SunCalc.getTimes(currentTime, user.coords.latitude, user.coords.longitude);
+    var nauticalDusk = times.nauticalDusk.getTime();
+    var nauticalDawn = times.nauticalDawn.getTime();
+    return (currentTime > nauticalDusk || currentTime < nauticalDawn);
+  },
+
+  getDirectionDegree: function(opts) {
+    var userLatitude = opts.userLatitude.toRad();
+    var satLatitude = this.lat.toRad();
+    var lonDiff = (this.lon - opts.userLongitude).toRad();
+    var y = Math.sin(lonDiff) * Math.cos(this.lat);
+    var x = Math.cos(userLatitude) * Math.sin(this.lat) - Math.sin(userLatitude) * Math.cos(this.lat) * Math.cos(lonDiff);
     return (Math.atan2(y, x).toDegree() + 360) % 360;
-},
+  },
 
-getCardinalDirection: function(directionDegree) {
+  getCardinalDirection: function(directionDegree) {
     var directions = [
     [22.5, 'north'],
     [67.5, 'northeast'],
@@ -3337,92 +3333,32 @@ getCardinalDirection: function(directionDegree) {
       var directionString = directions[i][1];
       if (directionDegree < degreeThreshold) {
         return directionString;
-    }
-}
-}
-};
-
-Number.prototype.toRad = function() {
-  return this * Math.PI / 180;
-};
-
-Number.prototype.toDegree = function() {
-  return this / Math.PI * 180;
-};
-
-
-// View, the interface for the messages
-var View = function() {
-  this.messages = {
-    spaceObject: {
-      visibility: {
-        "true": {
-          "title": function() {
-            return "Look up!";
-          },
-          "text": function(direction, darkOut) {
-              if (darkOut) {
-                return "You might be able to see the ISS to the " + direction + "! Tweet to @NASA_Astronauts!";
-            } else {
-                return "ISS in the " + direction + "! Tweet to @NASA_Astronauts!";
-            }
-          }
-        },
-        "false": {
-          "title": function() {
-            return "It's gone!";
-          },
-          "text": function() {
-              return "Sorry, the ISS is not visible around you!";
-          }
-        }
       }
     }
-  };
-};
-
-View.prototype = {
-  notify: function(object, isVisible, direction, darkOut) {
-    object = object.toLowerCase();
-    isVisible = isVisible.toString();
-    var messages = this.messages[object];
-
-    var title = messages.visibility[isVisible].title();
-    var text = messages.visibility[isVisible].text(direction, darkOut);
-    Pebble.sendAppMessage({
-      0: text
-  });
-}
-};
-
-
-// The user model that handles self localisation, and notifications
-var User = function(opts) {
+  }
+};;// The user model that handles self localisation, and notifications
+var User = function() {
   this.lastCoordUpdate = null;
-  this.spaceObject = {
-    name: null,
-    visible: false,
-    direction: null
-};
-  this.view = opts.view;
   this.coords = {};
   this.darkOut = false;
+  this.distance = 400; //distance user can see in km
 };
 
 User.prototype = {
-  getLocation: function(callback, satCoords) {
+  getLocation: function(callback, data) {
     if (this.staleCoordinates()) {
       var self = this;
-      navigator.geolocation.getCurrentPosition(function(position) {
+      navigator.geolocation.getCurrentPosition(
+      function(position) {
         self.findCoordinates(position);
-        callback(satCoords, self);
-    });
-  } else {
-      callback(satCoords, this);
-  }
-},
+        callback(data);
+      });
+    } else {
+      callback(data);
+    }
+  },
 
-findCoordinates: function(position) {
+  findCoordinates: function(position) {
     this.lastCoordUpdate = position.timestamp;
     this.coords = {
       'latitude': position.coords.latitude,
@@ -3431,49 +3367,118 @@ findCoordinates: function(position) {
     };
   },
 
-staleCoordinates: function() {
+  staleCoordinates: function() {
     var now = new Date().getTime();
     return (now - this.lastCoordUpdate > 30000); //five minutes
-  },
-
-isDarkOut: function() {
-    var currentTime = this.lastCoordUpdate;
-    var times = SunCalc.getTimes(currentTime, this.coords.latitude, this.coords.longitude);
-    var nauticalDusk = times.nauticalDusk.getTime();
-    var nauticalDawn = times.nauticalDawn.getTime();
-    return (currentTime > nauticalDusk || currentTime < nauticalDawn);
-  },
-
-setSpaceObjectProperties: function(spaceObject) {
-    if (this.spaceObject.visible != spaceObject.visible || this.spaceObject.direction != spaceObject.direction) {
-        this.spaceObject.visible = spaceObject.visible;
-        this.spaceObject.direction = spaceObject.direction;
-        this.view.notify(spaceObject);
-    }
   }
+};;// Ajax module to query the APIs
+Ajax = (function(satellite) {
+  var requestObject = new XMLHttpRequest();
+  var _formatData = function(data) {
+    data.type = data.type || "GET";
+    return data;
+  };
+
+  var _request = function(data, okCallback, errorCallback) {
+    data = _formatData(data);
+    requestObject.open(data.type, data.url, true);
+    requestObject.onreadystatechange = function(e) {
+      if (requestObject.readyState == 4) {
+        var data = requestObject.responseText.split('\n');
+        if (requestObject.status == 200) {
+          okCallback(data);
+      }
+    }
+  };
+  requestObject.send();
 };
 
+  return {
+    request: function(data, okCallback, errorCallback) {
+      _request(data, okCallback, errorCallback);
+    }
+  };
 
-// Global namespacing
+}(satellite));;// Controller
+var Controller = function(config){
+  this.user = config.user;
+  this.view = config.view;
+  this.ajax = config.ajax;
+  this.factory = config.factory;
+  this.oldSat = { name: null };
+};
+
+Controller.prototype = {
+
+  success: function(data){
+    this.user.getLocation(this.continueSuccess.bind(this), data);
+  },
+
+  continueSuccess: function(data){
+    this.satelliteData = data;
+    if (this.satellite){
+      this.oldSat = this.satellite;
+    }
+    this.satellite = this.makeSatellite();
+    this.satellite.update(this);
+    this.checkIfWeShouldUpdateView();
+  },
+
+  checkIfWeShouldUpdateView: function(){
+    if (this.satellite.changed) {
+      this.view.notify(this);
+    }
+  },
+
+  error: function(){
+    console.log('error');
+  },
+
+  getSatelliteData: function(){
+    var data = {
+      url: 'http://www.celestrak.com/NORAD/elements/stations.txt'
+    };
+    this.ajax.request(data, this.success.bind(this), this.error.bind(this));
+  },
+
+  makeSatellite: function(){
+    return this.factory.makeSatellite(this);
+  }
+};;// View, the interface for the messages
+var View = function() {};
+
+View.prototype = {
+  notify: function(data) {
+    var text = getMessage(data.satellite);
+    Pebble.sendAppMessage({ 0: text });
+  },
+
+  getMessage: function(satellite){
+    if (satellite.visible) {
+        return "You might be able to see the " + satellite.name + " to the " + satellite.direction + "! Tweet to @NASA_Astronauts!";
+    } else {
+        return satellite.name + " in the " + satellite.direction + "! Tweet to @NASA_Astronauts!";
+    }
+  }
+};;// Global namespacing
 SatAlert = {};
 
 // Sets everything in motion
 Pebble.addEventListener("ready",
   function(e) {
     SatAlert.view = new View();
-    SatAlert.user = new User({
-      view: SatAlert.view
-  });
-    SatAlert.satelliteFactory = new SatelliteFactory({
-      user: SatAlert.user
-  });
+    SatAlert.user = new User();
+    SatAlert.factory = new SatelliteFactory();
+    config = {
+      view: SatAlert.view,
+      user: SatAlert.user,
+      ajax: Ajax,
+      factory: SatAlert.factory
+    };
+    SatAlert.controller = new Controller(config);
+
 });
 
 Pebble.addEventListener("appmessage", function(e) {
-  var data = {
-    url: 'http://www.celestrak.com/NORAD/elements/stations.txt' 
-  };
-  var okCallback = SatAlert.satelliteFactory.okCallback.bind(SatAlert.satelliteFactory);
-  var errorCallback = SatAlert.satelliteFactory.errorCallback.bind(SatAlert.satelliteFactory);
-  Ajax.request(data, okCallback, errorCallback);
+  SatAlert.controller.getSatelliteData();
 });
