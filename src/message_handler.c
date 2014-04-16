@@ -2,7 +2,9 @@
 #include "app.h"
 
 AppTimer *timer;
-uint32_t polling_frequency;
+uint32_t const inbound_size = 140;
+uint32_t const outbound_size = 64;
+uint32_t const polling_frequency = 60000; // 60 seconds
 
 static void ask_for_iss_location(void *data) {
   DictionaryIterator *iter;
@@ -32,19 +34,15 @@ static void handle_in_received(DictionaryIterator *sent, void *context){
   vibes_double_pulse();
 }
 
-void message_handler_init(void){
+void register_message_callback(void){
   app_message_register_outbox_sent(handle_out_sent);
   app_message_register_outbox_failed(handle_out_failed);
   app_message_register_inbox_received(handle_in_received);
+}
 
-  const uint32_t inbound_size = 140;
-  const uint32_t outbound_size = 64;
+void message_handler_init(void){
+  register_message_callback();
   app_message_open(inbound_size, outbound_size);
-
   ask_for_iss_location(NULL);
-
-  polling_frequency = 60000; // 60 seconds
   poll_phone();
-
-
 }
