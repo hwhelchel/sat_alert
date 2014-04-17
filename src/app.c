@@ -72,7 +72,7 @@ static void window_unload(Window *window) {
   text_layer_destroy(clock_layer);
 }
 
-void app_init(void) {
+static void set_window(void){
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
@@ -82,6 +82,10 @@ void app_init(void) {
   window_set_background_color(window, bg_color);
   window_set_fullscreen(window, fullscreen);
   window_stack_push(window, animated);
+}
+
+void app_init(void) {
+  set_window();
 }
 
 void app_deinit(void){
