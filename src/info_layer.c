@@ -1,7 +1,7 @@
 #include <pebble.h>
 #include "config.h"
 
-
+// Global pointer to the layer
 static TextLayer *info_layer;
 // Info Layer Params
 static const uint32_t info_layer_padding = 4;
@@ -10,6 +10,7 @@ static const GTextAlignment info_alignment = GTextAlignmentCenter;
 static const GFont info_font = FONT_KEY_GOTHIC_24;
 static GSize max_size;
 
+// LAYER CREATION //
 static GRect get_info_layer_bounds(Layer *window_layer){
   GRect bounds = layer_get_frame(window_layer);
   uint32_t width = bounds.size.w - (info_layer_padding * 2);
@@ -30,19 +31,25 @@ void create_info_layer(Layer *window_layer){
   layer_add_child(window_layer, text_layer_get_layer(info_layer));
 }
 
-static void setWindowSize(){
+// LAYER UPDATE //
+static void set_layer_size(){
   max_size = text_layer_get_content_size(info_layer);
   max_size.w = max_size.w + info_layer_padding;
   max_size.h = max_size.h + info_layer_padding;
+  text_layer_set_size(info_layer, max_size);
 }
 
-void destroy_info_layer(void){
-  text_layer_destroy(info_layer);
+static void set_layer_visible(){
+  set_layer_size();
+  text_layer_set_background_color(info_layer, GColorWhite);
 }
 
 void set_info_text(char text[]){
   text_layer_set_text(info_layer, text);
-  setWindowSize();
-  text_layer_set_size(info_layer, max_size);
-  text_layer_set_background_color(info_layer, GColorWhite);
+  set_layer_visible();
+}
+
+// LAYER DESTROY //
+void destroy_info_layer(void){
+  text_layer_destroy(info_layer);
 }
