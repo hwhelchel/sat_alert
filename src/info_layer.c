@@ -1,7 +1,7 @@
 #include <pebble.h>
 #include "config.h"
 
-// Global pointer to the layer
+// Global pointer to the layers
 static TextLayer *info_layer;
 // Info Layer Params
 static const uint32_t info_layer_padding = 4;
