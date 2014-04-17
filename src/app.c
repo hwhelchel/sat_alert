@@ -1,8 +1,11 @@
 #include <pebble.h>
 
 static Window *window;
-static TextLayer *info_layer;
-static TextLayer *clock_layer;
+static TextLayer *info_layer, *clock_layer;
+static const bool animated = true;
+static const bool fullscreen = true;
+static const GColor bg_color = GColorBlack;
+static const GColor txt_color = GColorWhite;
 
 void set_info_text(char text[]){
   text_layer_set_text(info_layer, text);
@@ -29,8 +32,8 @@ static void set_clock_layer(Layer *window_layer){
 
   clock_layer = text_layer_create((GRect) { .origin = { 0, 10 }, .size = { bounds.size.w, 35 } });
   text_layer_set_text_alignment(clock_layer, GTextAlignmentCenter);
-  text_layer_set_text_color(clock_layer, GColorWhite);
-  text_layer_set_background_color(clock_layer, GColorBlack);
+  text_layer_set_text_color(clock_layer, txt_color);
+  text_layer_set_background_color(clock_layer, bg_color);
   text_layer_set_font(clock_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 
   time_t now = time(NULL);
@@ -75,9 +78,9 @@ void app_init(void) {
     .load = window_load,
     .unload = window_unload,
   });
-  window_set_background_color(window, GColorBlack);
-  window_set_fullscreen(window, true);
-  const bool animated = true;
+
+  window_set_background_color(window, bg_color);
+  window_set_fullscreen(window, fullscreen);
   window_stack_push(window, animated);
 }
 
