@@ -1,6 +1,6 @@
 #include <pebble.h>
-#include "app.h"
-#include "message_handler.h"
+#include "window/handler.h"
+#include "messages/handler.h"
 
 static void init(void){
   app_init();

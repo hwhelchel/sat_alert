@@ -1,14 +1,12 @@
 #include <pebble.h>
-#include "app.h"
+#include "../window/info_layer.h"
+#include "../config.h"
 
 AppTimer *timer;
-uint32_t const inbound_size = 140;
-uint32_t const outbound_size = 64;
-uint32_t const polling_frequency = 60000; // 60 seconds
 char text[140];
 
 static void prepare_message(DictionaryIterator *iter) {
-  Tuplet value = TupletInteger(0, 0); // For now we don't care about the message.
+  Tuplet value = TupletInteger(0, 0); // For now we don't care about the message we send.
   dict_write_tuplet(iter, &value);
 }
 
