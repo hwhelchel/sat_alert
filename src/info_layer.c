@@ -8,6 +8,7 @@ static const uint32_t info_layer_padding = 4;
 static const GColor info_txt_color = GColorBlack;
 static const GTextAlignment info_alignment = GTextAlignmentCenter;
 static const GFont info_font = FONT_KEY_GOTHIC_24;
+static GSize max_size;
 
 static GRect get_info_layer_bounds(Layer *window_layer){
   GRect bounds = layer_get_frame(window_layer);
@@ -29,15 +30,19 @@ void create_info_layer(Layer *window_layer){
   layer_add_child(window_layer, text_layer_get_layer(info_layer));
 }
 
+static void setWindowSize(){
+  max_size = text_layer_get_content_size(info_layer);
+  max_size.w = max_size.w + info_layer_padding;
+  max_size.h = max_size.h + info_layer_padding;
+}
+
 void destroy_info_layer(void){
   text_layer_destroy(info_layer);
 }
 
 void set_info_text(char text[]){
   text_layer_set_text(info_layer, text);
-  GSize max_size = text_layer_get_content_size(info_layer);
-  max_size.w = max_size.w + 5;
-  max_size.h = max_size.h + 5;
+  setWindowSize();
   text_layer_set_size(info_layer, max_size);
   text_layer_set_background_color(info_layer, GColorWhite);
 }
