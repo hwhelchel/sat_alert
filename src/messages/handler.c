@@ -5,15 +5,18 @@
 AppTimer *timer;
 char text[140];
 
-static void prepare_message(DictionaryIterator *iter) {
+static void set_text(DictionaryIterator *iter){
   Tuplet value = TupletInteger(0, 0); // For now we don't care about the message we send.
   dict_write_tuplet(iter, &value);
 }
+static void prepare_message(void) {
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  set_text(iter);
+}
 
 static void ask_for_iss_location(void *data) {
-	DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-  prepare_message(iter);
+  prepare_message();
   app_message_outbox_send();
 
 	// reset timer to relaunch the polling
